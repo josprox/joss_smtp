@@ -1,0 +1,38 @@
+class SmtpClient {
+    function constructor() {
+        $this->host = System::env("MAIL_HOST") ?? "localhost"
+        $this->port = System::env("MAIL_PORT") ?? "587"
+        $this->user = System::env("MAIL_USERNAME") ?? ""
+        $this->pass = System::env("MAIL_PASSWORD") ?? ""
+    }
+
+    function auth($user, $password) {
+        $this->user = $user
+        $this->pass = $password
+        return $this
+    }
+
+    function secure($host, $port) {
+        $this->host = $host
+        $this->port = $port
+        return $this
+    }
+
+    function send($to, $subject, $body) {
+        // Run Python inline script to avoid file dependencies
+        $pyCode = "import smtplib; from email.mime.text import MIMEText; from email.mime.multipart import MIMEMultipart; "
+            . "msg = MIMEMultipart(); msg['From'] = '" . $this->user . "'; msg['To'] = '" . $to . "'; msg['Subject'] = '" . $subject . "'; "
+            . "msg.attach(MIMEText('" . $body . "', 'html')); "
+            . "s = smtplib.SMTP('" . $this->host . "', " . $this->port . "); "
+            . "if '" . $this->port . "' == '587': s.starttls(); "
+            . "s.login('" . $this->user . "', '" . $this->pass . "'); "
+            . "s.sendmail('" . $this->user . "', '" . $to . "', msg.as_string()); s.quit(); print('ok')"
+        
+        $args = ["-c", $pyCode]
+        $output = System::Run("python3", $args)
+        (empty($output) || Str::contains($output, "error")) ? {
+            $output = System::Run("python", $args)
+        } : {}
+        return ($output == "ok\n" || $output == "ok") ? true : false
+    }
+}
