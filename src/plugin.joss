@@ -1,3 +1,0 @@
-// joss_smtp entry point
-// Bridges the native SmtpClient implementation.
-print("[joss_smtp] Cargado plugin oficial de correo SMTP.")

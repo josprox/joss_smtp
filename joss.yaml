@@ -3,7 +3,6 @@ version: 1.0.0
 description: Plugin oficial para envío de correos electrónicos vía SMTP en Joss.
 repository: https://github.com/josprox/joss_smtp
 license: MIT
-environment:
-  joss: ">=3.4.1 <4.0.0"
-entry:
-  main: src/plugin.joss
+type: go_extension
+files:
+  - smtp.go
