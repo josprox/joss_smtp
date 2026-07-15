@@ -1,0 +1,43 @@
+class SmtpClient {
+    Init constructor() {
+        $this->user = ""
+        $this->pass = ""
+        $this->secure_value = false
+        $this->timeout_value = 30
+        $this->last_error = ""
+    }
+
+    function auth($user, $pass) {
+        $this->user = $user
+        $this->pass = $pass
+        return $this
+    }
+
+    function secure($enabled) {
+        $this->secure_value = $enabled
+        return $this
+    }
+
+    function timeout($seconds) {
+        $this->timeout_value = $seconds
+        return $this
+    }
+
+    function lastError() {
+        return $this->last_error
+    }
+
+    function send($to, $subject, $body) {
+        $result = Plugin::call("joss_smtp", "send", [{
+            "to": $to,
+            "subject": $subject,
+            "body": $body,
+            "user": $this->user,
+            "pass": $this->pass,
+            "secure": $this->secure_value,
+            "timeout": $this->timeout_value
+        }])
+        $this->last_error = $result.error
+        return $result.ok
+    }
+}
